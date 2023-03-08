@@ -1,9 +1,12 @@
+import javax.swing.*;
+import java.awt.*;
+
 /**
- * Class to implement the algorithm for Conway's Game of Life
+ * class to implement a GUI for Conway's Game of Life
  * @author Aaron Howe
  * @version JDK 17
  */
-public class LifeApp {
+public class LifeOutput extends JPanel {
 
     private int gridSize = 19;
 
@@ -29,25 +32,35 @@ public class LifeApp {
                     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
             };
 
-    int[][] newCells = new int[19][19];
+    String[][] newCells = new String[19][19];
+
+    // initialize the window using JFrame
+    private JFrame lifeFrame;
+    // Instantiation of the JLabel
+    private JLabel label = new JLabel();
+    // instantiation of the window panel
+    private JPanel lifePanel = new JPanel();
+    // counter for button pressing
+    private int counter = 0;
 
     /**
-     * Default constructor designs the board
-     *
+     * Default constructor for the state of the window
      */
-    public LifeApp() {
-        for (int i = 0; i < cells.length; i++) {
-            for (int j = 0; j < cells[i].length; j++) {
-            }
-        }
+    public LifeOutput() {
+        lifeFrame = new JFrame();
+        lifeFrame.setTitle("Conway's Game of Life");
+        lifeFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        lifeFrame.setLocation(100, 100);
+        lifeFrame.setSize(500, 500);
+        lifeFrame.setVisible(true);
     }
 
-    /**
-     * toString that translates int data to string
-     * @return the board when outer for loop is satisfied
-     */
-    @Override
-    public String toString() {
+    public LifeOutput(String[][] str) {
+        this();
+        Dimension size = getSize();
+        if (str.length * 20 + 50 > size.width || str.length * 20 + 50 > size.height) {
+            setSize(size.height + 50, size.width + 50);
+        }
         // instantiate blank string object
         String board = "";
         // translate integer array data into strings
@@ -55,25 +68,32 @@ public class LifeApp {
             for (int j = 0; j < cells[i].length; j++) {
                 switch (cells[i][j]) {
                     case 0: board += "." + " ";
-                    break;
+                        setVisible(true);
+                        break;
                     case 1: board += "O" + " ";
-                    break;
+                        setVisible(true);
+                        break;
                 }
             }
             // appends a new line for every 19 elements in a single row, return to inner loop
             board += "\n";
         }
-        return board;
     }
 
     /**
-     * method to check if all surrounding neighbors of a cell are alive
-     * @param row
-     * @param col
-     * @return
+     * String constructor to build the grid of cells
+     * @param str two-dimensional string array
+     * @return the 2D array
      */
-    // short circuiting: if you have two parts of an if statement, if first check is false, then code will exit
-    // - only works for &&, not ||
+    public String[][] grid(String[][] str) {
+        for (int i = 0; i < str.length; i++) {
+            for (int j = 0; j < str.length; j++) {
+                str[i][j] = ".";
+            }
+        }
+        return str;
+    }
+
     public int checkNeighbors(int row, int col) {
         int count = 0;
         // check top left
@@ -111,17 +131,16 @@ public class LifeApp {
         return count;
     }
 
-
     /**
      * method to update dead cells into live cells
      */
-    public void nextGen() {
+    public String[][] nextGen(String[][] str, int[][] cells) {
 
         int numNeighbors;
 
         for (int i = 0; i < cells.length; i++) {
             for (int j = 0; j < cells[i].length; j++) {
-                newCells[i][j] = cells[i][j];
+                newCells[i][j] = String.valueOf(cells[i][j]);
             }
         }
         for (int i = 0; i < cells.length; i++) {
@@ -129,7 +148,7 @@ public class LifeApp {
                 numNeighbors = checkNeighbors(i, j);
                 // if dead has 3 live neighbors, dead cell becomes alive
                 if (numNeighbors == 3 && cells[i][j] == 0) {
-                    newCells[i][j] = 1;
+                    newCells[i][j] = String.valueOf(1);
                 }
                 // if dead cell does not have == 3 live neighbors, it remains dead
                 if (numNeighbors != 3 && cells[i][j] == 0) {
@@ -141,19 +160,20 @@ public class LifeApp {
                 }
                 // if a live cell has zero or one neighbor, it dies. Loneliness.
                 if (numNeighbors == 0 || numNeighbors == 1 && cells[i][j] == 1) {
-                    newCells[i][j] = 0;
+                    newCells[i][j] = String.valueOf(0);
                 }
                 // if a live cell has 4 or more live neighbors, it dies, overcrowding.
                 if (numNeighbors >= 4 && cells[i][j] == 1) {
-                    newCells[i][j] = 0;
+                    newCells[i][j] = String.valueOf(0);
                 }
             }
         }
         // looping iteration that sets old generation to the new generation
         for (int i = 0; i < newCells.length; i++) {
             for (int j = 0; j < newCells[i].length; j++) {
-                cells[i][j] = newCells[i][j];
+                cells[i][j] = Integer.parseInt(newCells[i][j]);
             }
         }
+        return str;
     }
 }
